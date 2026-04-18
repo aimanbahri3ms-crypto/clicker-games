@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>✨ Simple Counter | Interactive UI</title>
+  <style>
+    /* ---------- CSS RESET & GLOBAL STYLES ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none; /* prevents accidental text selection on buttons, but keeps text readable */
+    }
+
+    body {
+      background: linear-gradient(145deg, #f0f4ff 0%, #d9e2fa 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      padding: 1.5rem;
+      margin: 0;
+    }
+
+    /* main card container */
+    .counter-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(2px);
+      border-radius: 3rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.35), 0 8px 18px rgba(0, 0, 0, 0.1);
+      padding: 2rem 2rem 2.5rem;
+      max-width: 550px;
+      width: 100%;
+      transition: transform 0.2s ease;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    .counter-card:hover {
+      transform: scale(1.01);
+    }
+
+    /* header style */
+    .app-title {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1f2b4e, #2c3e66);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.3px;
+    }
+
+    .sub {
+      color: #4a627a;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      border-bottom: 2px dashed #bdd0f0;
+      display: inline-block;
+      padding-bottom: 6px;
+    }
+
+    /* big counter display */
+    .counter-value {
+      font-size: 8rem;
+      font-weight: 800;
+      font-family: 'Fira Mono', 'Courier New', monospace;
+      background: #1e2a3e;
+      background: linear-gradient(145deg, #0f172a, #1e293b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 4px 4px 12px rgba(0,0,0,0.1);
+      margin: 0.5rem 0 0.25rem;
+      line-height: 1.1;
+      transition: all 0.1s ease;
+    }
+
+    /* dynamic background for counter (optional modern touch) */
+    .counter-wrapper {
+      background: #f8fafd;
+      border-radius: 4rem;
+      padding: 1rem 0.5rem;
+      margin: 1rem 0 1.2rem;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.02), 0 8px 20px rgba(0,0,0,0.05);
+    }
+
+    /* button group */
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.2rem;
+      margin: 2rem 0 1.8rem;
+    }
+
+    .btn {
+      border: none;
+      font-size: 1.4rem;
+      font-weight: 600;
+      padding: 0.8rem 1.6rem;
+      border-radius: 2.5rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .btn-primary {
+      background: #2c3e66;
+      color: white;
+      border-bottom: 3px solid #141e33;
+    }
+
+    .btn-primary:hover {
+      background: #1f2f52;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #eef2ff;
+      color: #1f2f4a;
+      border-bottom: 3px solid #cbd5e1;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: #fff0f0;
+      color: #b91c1c;
+      border-bottom: 3px solid #fecaca;
+    }
+
+    .btn-danger:hover {
+      background: #ffe4e4;
+    }
+
+    .btn-reset {
+      background: #f1f3f8;
+      color: #334155;
+      border-bottom: 3px solid #cbd5e6;
+      font-weight: 600;
+    }
+
+    /* special styles for increment/decrement icons */
+    .btn span {
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+
+    /* extra action row */
+    .extra-row {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* small status message */
+    .status-message {
+      margin-top: 1.8rem;
+      font-size: 0.9rem;
+      background: #eef3ff;
+      display: inline-block;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      color: #1e293b;
+      font-weight: 500;
+      backdrop-filter: blur(4px);
+      transition: all 0.2s;
+    }
+
+    /* responsive design */
+    @media (max-width: 480px) {
+      .counter-card {
+        padding: 1.5rem;
+      }
+      .counter-value {
+        font-size: 5.5rem;
+      }
+      .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 1.1rem;
+      }
+      .button-group {
+        gap: 0.8rem;
+      }
+      .app-title {
+        font-size: 1.7rem;
+      }
+    }
+
+    /* footer / hint */
+    .footer-hint {
+      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      color: #5c6e8c;
+      background: #eef2f9;
+      display: inline-block;
+      padding: 0.2rem 1rem;
+      border-radius: 30px;
+    }
+
+    /* step input custom */
+    .step-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffffcc;
+      padding: 0.3rem 1rem;
+      border-radius: 50px;
+      backdrop-filter: blur(4px);
+    }
+    .step-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #2c3e66;
+    }
+    #stepValue {
+      width: 65px;
+      text-align: center;
+      font-weight: bold;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 40px;
+      padding: 6px 0;
+      font-size: 0.9rem;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+<div class="counter-card">
+  <div class="app-title">✨ Interactive Counter</div>
+  <div class="sub">click · adjust · enjoy</div>
+
+  <div class="counter-wrapper">
+    <div class="counter-value" id="counterDisplay">0</div>
+  </div>
+
+  <!-- main button group: increment / decrement / reset -->
+  <div class="button-group">
+    <button class="btn btn-primary" id="incrementBtn" aria-label="Increase value">➕ +<span id="incStepLabel">1</span></button>
+    <button class="btn btn-danger" id="decrementBtn" aria-label="Decrease value">➖ -<span id="decStepLabel">1</span></button>
+    <button class="btn btn-reset" id="resetBtn" aria-label="Reset to zero">⟳ RESET</button>
+  </div>
+
+  <!-- custom step size + special double (bonus) -->
+  <div class="extra-row">
+    <div class="step-control">
+      <span class="step-label">⚙️ Step size:</span>
+      <input type="number" id="stepValue" value="1" min="1" max="50" step="1">
+    </div>
+    <button class="btn btn-secondary" id="doubleBtn">🎯 DOUBLE (×2)</button>
+  </div>
+
+  <!-- dynamic status info -->
+  <div>
+    <div class="status-message" id="statusMsg">
+      💡 Counter ready — use buttons or step size
+    </div>
+    <div class="footer-hint">
+      🧮 Step defines increment/decrement amount | DOUBLE doubles current value!
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- JAVASCRIPT LOGIC ----------
+  // Get references to DOM elements
+  const counterDisplay = document.getElementById('counterDisplay');
+  const incrementBtn = document.getElementById('incrementBtn');
+  const decrementBtn = document.getElementById('decrementBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const doubleBtn = document.getElementById('doubleBtn');
+  const stepInput = document.getElementById('stepValue');
+  const incStepLabel = document.getElementById('incStepLabel');
+  const decStepLabel = document.getElementById('decStepLabel');
+  const statusMsg = document.getElementById('statusMsg');
+
+  // Application state
+  let currentCount = 0;      // integer value
+
+  // helper: update the UI and show the current count with nice formatting
+  function updateCounterUI() {
+    // update main display
+    counterDisplay.innerText = currentCount;
+    // Optional: add a small visual feedback for negative / positive / zero
+    if (currentCount > 0) {
+      counterDisplay.style.background = "linear-gradient(145deg, #0f3b2c, #1e5a44)";
+      counterDisplay.style.webkitBackgroundClip = "text";
+      counterDisplay.style.backgroundClip = "text";
+      counterDisplay.style.color = "transparent";
+    } else if (currentCount < 0) {
+      counterDisplay.style.background = "linear-gradient(145deg, #7f2a2a, #b13e3e)";
+      counterDisplay.style.webkitBackgroundClip = "text";
+      counterDisplay.style.backgroundClip = "text";
+      counterDisplay.style.color = "transparent";
+    } else {
+      counterDisplay.style.background = "linear-gradient(145deg, #0f172a, #1e293b)";
+      counterDisplay.style.webkitBackgroundClip = "text";
+      counterDisplay.style.backgroundClip = "text";
+      counterDisplay.style.color = "transparent";
+    }
+    // subtle animation effect using transform (quick flash)
+    counterDisplay.style.transform = "scale(1.05)";
+    setTimeout(() => {
+      if(counterDisplay) counterDisplay.style.transform = "scale(1)";
+    }, 120);
+  }
+
+  // show temporary status message (auto clears after 2 seconds unless overwritten)
+  let statusTimeout = null;
+  function setStatusMessage(text, isError = false) {
+    if (statusTimeout) clearTimeout(statusTimeout);
+    statusMsg.innerHTML = isError ? `⚠️ ${text}` : `✨ ${text}`;
+    if (!isError) {
+      statusTimeout = setTimeout(() => {
+        if (statusMsg) statusMsg.innerHTML = `💡 Counter ready — use buttons or step size`;
+      }, 2000);
+    } else {
+      // error stays a bit longer but also fades after 2.5s
+      statusTimeout = setTimeout(() => {
+        if (statusMsg && statusMsg.innerHTML.includes('⚠️')) {
+          statusMsg.innerHTML = `💡 Counter ready — use buttons or step size`;
+        }
+      }, 2500);
+    }
+  }
+
+  // get current step value (positive integer)
+  function getCurrentStep() {
+    let rawStep = parseInt(stepInput.value, 10);
+    // validation: if NaN, less than 1, or greater than max, reset to 1
+    if (isNaN(rawStep)) {
+      stepInput.value = 1;
+      rawStep = 1;
+      setStatusMessage("Step size reset to 1 (invalid input)", false);
+    } else if (rawStep < 1) {
+      stepInput.value = 1;
+      rawStep = 1;
+      setStatusMessage("Step must be at least 1, set to 1", false);
+    } else if (rawStep > 50) {
+      stepInput.value = 50;
+      rawStep = 50;
+      setStatusMessage("Max step size is 50, adjusted", false);
+    }
+    // update labels on buttons to show step
+    incStepLabel.innerText = rawStep;
+    decStepLabel.innerText = rawStep;
+    return rawStep;
+  }
+
+  // increment logic
+  function incrementCounter() {
+    const step = getCurrentStep();
+    currentCount += step;
+    updateCounterUI();
+    setStatusMessage(`Increased by ${step} → ${currentCount}`);
+  }
+
+  // decrement logic
+  function decrementCounter() {
+    const step = getCurrentStep();
+    currentCount -= step;
+    updateCounterUI();
+    setStatusMessage(`Decreased by ${step} → ${currentCount}`);
+  }
+
+  // reset to zero
+  function resetCounter() {
+    currentCount = 0;
+    updateCounterUI();
+    setStatusMessage(`Counter reset to 0`);
+    // extra: also reset any flashing style
+  }
+
+  // double the current value (bonus feature)
+  function doubleCounter() {
+    // double the current count, no step limit interaction
+    const oldValue = currentCount;
+    currentCount = currentCount * 2;
+    updateCounterUI();
+    setStatusMessage(`Doubled! ${oldValue} × 2 = ${currentCount}`);
+    // optional feedback if too large but no restrictions, fun!
+    if (Math.abs(currentCount) > 99999) {
+      setStatusMessage(`🎉 Massive number! ${currentCount}`, false);
+    }
+  }
+
+  // sync step labels when user changes step input manually
+  function syncStepLabels() {
+    const step = getCurrentStep(); // validates + updates labels
+    // just ensures that labels show step
+    incStepLabel.innerText = step;
+    decStepLabel.innerText = step;
+    setStatusMessage(`Step size set to ${step}`, false);
+  }
+
+  // additional safety: check max/min but no hard limit except for display comfort
+  // we also attach keyboard shortcuts? not needed but adds delight (optional)
+  // keyboard listeners for arrow up/down, R for reset, D for double
+  function handleKeyPress(event) {
+    // prevent if user is typing inside step input (avoid conflicts)
+    const activeEl = document.activeElement;
+    if (activeEl && activeEl.id === 'stepValue') {
+      // if user is editing step value, don't trigger counter hotkeys
+      return;
+    }
+    switch(event.key) {
+      case 'ArrowUp':
+        event.preventDefault();
+        incrementCounter();
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        decrementCounter();
+        break;
+      case 'r':
+      case 'R':
+        event.preventDefault();
+        resetCounter();
+        break;
+      case 'd':
+      case 'D':
+        event.preventDefault();
+        doubleCounter();
+        break;
+      default: break;
+    }
+  }
+
+  // event listeners for all interactive elements
+  incrementBtn.addEventListener('click', incrementCounter);
+  decrementBtn.addEventListener('click', decrementCounter);
+  resetBtn.addEventListener('click', resetCounter);
+  doubleBtn.addEventListener('click', doubleCounter);
+  stepInput.addEventListener('change', syncStepLabels);
+  stepInput.addEventListener('input', function() {
+    // live preview step on labels while typing (without full validation)
+    let tentative = parseInt(stepInput.value, 10);
+    if (!isNaN(tentative)) {
+      if (tentative < 1) tentative = 1;
+      if (tentative > 50) tentative = 50;
+      incStepLabel.innerText = tentative;
+      decStepLabel.innerText = tentative;
+    } else {
+      incStepLabel.innerText = '?';
+      decStepLabel.innerText = '?';
+    }
+  });
+  // re-validate on blur to ensure consistency
+  stepInput.addEventListener('blur', function() {
+    getCurrentStep();  // final validation
+  });
+
+  // add keyboard support
+  window.addEventListener('keydown', handleKeyPress);
+
+  // initial setup: set step labels to default 1, ensure no undefined
+  (function init() {
+    getCurrentStep(); // sets labels and validates stepInput
+    currentCount = 0;
+    updateCounterUI();
+    setStatusMessage("✨ Welcome! Use buttons, step size, or keyboard (↑/↓/R/D)");
+  })();
+
+  // Optional: small extra effect: if step input gets invalid char, handle gracefully
+  stepInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      getCurrentStep();
+      stepInput.blur();
+    }
+  });
+
+  // ensures that display never cuts off huge numbers? It handles normally, but we trust CSS.
+  // also provide dynamic message for overflow (not necessary)
+</script>
+</body>
+</html>
